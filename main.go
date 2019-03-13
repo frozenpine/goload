@@ -1,14 +1,16 @@
 package main
 
 import (
+	"github.com/frozenpine/nge4go/swagger"
 	"context"
 	"flag"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/antihax/optional"
+	"github.com/frozenpine/nge4go"
 	"github.com/myzhan/boomer"
-	ngeSw "gitlab.quantdo.cn/yuanyang/nge4go/swagger"
 )
 
 const (
@@ -17,7 +19,7 @@ const (
 )
 
 var (
-	client            *ngeSw.APIClient
+	client            *nge4go.swagger.APIClient
 	evnetBus          boomer.Events
 	rootCtx, stopFunc = context.WithCancel(context.Background())
 
@@ -27,7 +29,7 @@ var (
 )
 
 func initClient() {
-	client = ngeSw.NewAPIClient(ngeSw.NewConfiguration())
+	client = nge4go.swagger.NewAPIClient(nge4go.swagger.NewConfiguration())
 }
 
 func initArgs() {
@@ -46,20 +48,24 @@ func worker() {
 	name := "OrderNew"
 
 	for {
-		ordOpts := &ngeSw.OrderNewOpts{
+		ordOpts := nge4go.swagger.OrderNewOpts{
 			Side:     optional.NewString("Buy"),
 			OrderQty: optional.NewFloat32(1),
 			Price:    optional.NewFloat64(3536)}
 
 		start := boomer.Now()
-		ord, rsp, err := client.OrderApi.OrderNew(auth, "XBTUSD", ordOpts)
+		ord, rsp, err := client.OrderApi.OrderNew(auth, "XBTUSD", &ordOpts)
 		elapsed := start - boomer.Now()
 
 		if rsp.StatusCode > 300 || err != nil {
 			boomer.RecordFailure(method, name, elapsed, err.Error())
 		}
 
-		boomer.RecordSuccess(method, name, elapsed, rsp.Header.Get("Content-Length"))
+		bodyLength, err := strconv.Atoi(rsp.Header.Get("Content-Length"))
+		if err != nil {
+			bodyLength = 0
+		}
+		boomer.RecordSuccess(method, name, elapsed, int64(bodyLength))
 	}
 }
 
