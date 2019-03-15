@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
-	"fmt"
 	"log"
 	"strconv"
 	"strings"
+
+	"gitlab.quantdo.cn/yuanyang/goload/utils"
 
 	"github.com/antihax/optional"
 	"github.com/frozenpine/ngerest"
@@ -14,21 +16,43 @@ import (
 )
 
 const (
-	defaultHost = "http://trade"
-	defaultURI  = "/api/v1"
+	defaultHost      = "http://trade"
+	defaultURI       = "/api/v1"
+	defaultSymbol    = "XBTUSD"
+	defaultQuantity  = int64(1)
+	defaultPrice     = float64(3536)
+	defaultPrecision = 2
+	defaultSide      = "Buy"
+
+	defaultIdentity = "yuanyang@quantdo.com.cn"
+	defaultPassword = "quantdo123456"
 )
 
 var (
-	client            *ngerest.APIClient
-	eventBus          = boomer.Events
+	noBoomer bool
+
+	client *ngerest.APIClient
+
 	rootCtx, stopFunc = context.WithCancel(context.Background())
 
 	host, baseURI string
+	symbol        string
+	quantity      int64
+	price         float64
+	side          string
+	sides         []int64
+	precision     int
+	basePrice     float64
+	maxQuantity   = int64(100)
 
-	eventHatchComplete = make(chan bool)
+	apiKey, apiSecret string
 
-	method = "REST"
-	name   = "OrderNew"
+	randPrice, randQuantity, randSide, bothSide bool
+
+	count int
+
+	method = "New"
+	name   = "Order"
 )
 
 func initClient() {
@@ -36,22 +60,75 @@ func initClient() {
 }
 
 func initArgs() {
+	flag.BoolVar(&noBoomer, "noboomer", false, "Runnning in cli mode with out boomer.")
+
 	flag.StringVar(&host, "host", defaultHost, "Host to take pressure.")
 	flag.StringVar(&baseURI, "base", defaultURI, "Default api base URI.")
+
+	flag.StringVar(&symbol, "symbol", defaultSymbol, "Order symbol.")
+	flag.Int64Var(&quantity, "quantity", defaultQuantity, "Order quantity.")
+	flag.StringVar(&side, "side", defaultSide, "Order side.")
+	flag.Float64Var(&price, "price", defaultPrice, "Order price.")
+	flag.IntVar(&precision, "precis", defaultPrecision, "Precesion for random price.")
+	flag.Float64Var(&basePrice, "base-price", defaultPrice, "Base price for random price.")
+	flag.Int64Var(&maxQuantity, "max-quantity", maxQuantity, "Max quantity for random quantity.")
+
+	flag.StringVar(&apiKey, "key", "", "API-Key for order.")
+	flag.StringVar(&apiSecret, "secret", "", "API-Secret for order.")
+
+	flag.BoolVar(&randPrice, "rand-price", false, "Generate random price[BASE_PRICE.00, BASE_PRICE.99].")
+	flag.BoolVar(&randQuantity, "rand-quant", false, "Generate random quantity[1, MAX_QUANTITY].")
+	flag.BoolVar(&randSide, "rand-side", false, "Generate order in random side.")
+	flag.BoolVar(&bothSide, "both-side", false, "Generate order in both side.")
+
+	flag.IntVar(&count, "count", 1, "Order count per worker.")
 }
 
-func makeOrder(auth context.Context) *ngerest.Order {
+func validateArgs() {
+	basePath := strings.Join([]string{strings.Trim(host, "/"), strings.Trim(baseURI, "/")}, "/")
+	log.Println("Change host to:", basePath)
+	client.ChangeBasePath(basePath)
+
+	if err := utils.CheckSymbol(symbol); err != nil {
+		log.Fatalln(err)
+	}
+	if err := utils.CheckPrice(price); err != nil {
+		log.Fatalln(err)
+	}
+	if err := utils.CheckQuantity(quantity); err != nil {
+		log.Fatalln(err)
+	}
+
+	if err := utils.MatchSide(&side, quantity); err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func makeOrder(auth context.Context, ordSym string, ordPrice float64, ordVol int64) *ngerest.Order {
+	var side string
+	if ordVol > 0 {
+		side = utils.Buy.String()
+	} else {
+		side = utils.Sell.String()
+		ordVol = -ordVol
+	}
+
+	if noBoomer {
+		log.Printf("%s [%s]: %d@%."+strconv.Itoa(precision)+"f\n", side, ordSym, ordVol, ordPrice)
+	}
+
 	ordOpts := ngerest.OrderNewOpts{
-		Side:     optional.NewString("Buy"),
-		OrderQty: optional.NewFloat32(float32(1)),
-		Price:    optional.NewFloat64(float64(3536))}
+		Side:     optional.NewString(side),
+		OrderQty: optional.NewFloat32(float32(ordVol)),
+		Price:    optional.NewFloat64(ordPrice)}
 
 	start := boomer.Now()
-	ord, rsp, err := client.OrderApi.OrderNew(auth, "XBTUSD", &ordOpts)
-	elapsed := start - boomer.Now()
+	ord, rsp, err := client.OrderApi.OrderNew(auth, ordSym, &ordOpts)
+	elapsed := boomer.Now() - start
 
-	if rsp.StatusCode > 300 || err != nil {
+	if err != nil {
 		boomer.RecordFailure(method, name, elapsed, err.Error())
+		return nil
 	}
 
 	bodyLength, err := strconv.Atoi(rsp.Header.Get("Content-Length"))
@@ -64,25 +141,55 @@ func makeOrder(auth context.Context) *ngerest.Order {
 }
 
 func worker() {
-	if !flag.Parsed() {
-		flag.Parse()
+	defer func() {
+		recover()
+	}()
+
+	if apiKey == "" || apiSecret == "" {
+		apiKey = "j84Hf3MbCDmdyB2vG6Q1"
+		apiSecret = "2U616PXJkGsDhgOoKPkxCgipv7UYUPm4h6hz678786RzU2Pn7mA42vij87NWd0z4T79lK97SGxvWJGKt649Ka5fh0k4Y2WfzNF8"
+		// todo: login with defaultIdentity & retrive api-key.
+		// if user not exist, register & retrive.
 	}
-	client.ChangeBasePath(host)
+	auth := context.WithValue(
+		rootCtx, ngerest.ContextAPIKey, ngerest.APIKey{
+			Key:    apiKey,
+			Secret: apiSecret,
+		})
 
-	auth := context.WithValue(rootCtx, ngerest.ContextAPIKey, ngerest.APIKey{
-		Key:    "o9EijdKODwl4a26JI0B2",
-		Secret: "Lfp4qu5P5Ot63NIba9Wm132a3sCaAet3N7KJr0DrtJ54r6ZnHo6FrV89sG68q4mOK4dia52Epu5H1uUxJEc8KraKZ16B79EJB4V"})
-
-	if !<-eventHatchComplete {
-		log.Fatalln("Hatch failed.")
+	if bothSide {
+		sides = []int64{1, -1}
+	} else {
+		if randSide {
+			sides = []int64{utils.RandomSide().Value()}
+		} else {
+			sides = []int64{utils.OrderSide(side).Value()}
+		}
 	}
 
-	for {
-		select {
-		case <-rootCtx.Done():
-			log.Println("Exit")
-		default:
-			makeOrder(auth)
+	for count > 0 {
+		for idx, sideValue := range sides {
+			if !(bothSide && idx > 0) {
+				if randPrice {
+					utils.RandomPrice(&price, precision, basePrice)
+				}
+
+				if randQuantity {
+					utils.RandomQuantity(&quantity, maxQuantity)
+				}
+			}
+
+			ord := makeOrder(auth, symbol, price, quantity*sideValue)
+
+			if noBoomer {
+				if ord != nil {
+					result, _ := json.Marshal(ord)
+					log.Println(string(result))
+				} else {
+					log.Println("making order failed.")
+				}
+				count--
+			}
 		}
 	}
 }
@@ -91,21 +198,20 @@ func main() {
 	if !flag.Parsed() {
 		flag.Parse()
 	}
-	client.ChangeBasePath(
-		fmt.Sprintf("%s/%s", strings.TrimRight(host, "/"), strings.TrimLeft(baseURI, "/")))
+	validateArgs()
 
-	eventBus.Subscribe("boomer:hatch_complete", func() { eventHatchComplete <- true })
-	eventBus.Subscribe("boomer:hatch_stop", func() { stopFunc() })
-
-	task := &boomer.Task{
-		Name: "Order_new",
-		Fn:   worker}
-
-	boomer.Run(task)
+	if noBoomer {
+		worker()
+	} else {
+		task := &boomer.Task{
+			Name: name,
+			Fn:   worker,
+		}
+		boomer.Run(task)
+	}
 }
 
 func init() {
 	initClient()
-
 	initArgs()
 }
