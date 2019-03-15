@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/antihax/optional"
 	"github.com/frozenpine/ngerest"
 	"github.com/myzhan/boomer"
 )
@@ -40,12 +41,10 @@ func initArgs() {
 }
 
 func makeOrder(auth context.Context) *ngerest.Order {
-	// ordOpts := ngerest.OrderNewOpts{
-	// 	Side:     optional.NewString("Buy"),
-	// 	OrderQty: optional.NewFloat32(float32(1)),
-	// 	Price:    optional.NewFloat64(float64(3536))}
-
-	ordOpts := ngerest.OrderNewOpts{}
+	ordOpts := ngerest.OrderNewOpts{
+		Side:     optional.NewString("Buy"),
+		OrderQty: optional.NewFloat32(float32(1)),
+		Price:    optional.NewFloat64(float64(3536))}
 
 	start := boomer.Now()
 	ord, rsp, err := client.OrderApi.OrderNew(auth, "XBTUSD", &ordOpts)

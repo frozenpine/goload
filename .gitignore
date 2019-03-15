@@ -1,1 +1,5 @@
 .vscode
+.idea
+
+**/*.exe
+**/*debug*
