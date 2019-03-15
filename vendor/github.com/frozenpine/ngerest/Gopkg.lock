@@ -11,22 +11,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e2a1ff1174d564ed4b75a62757f4a9081ed3b8c99ed17e47eb252b048b4ff018"
-  name = "github.com/asaskevich/EventBus"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "d46933a94f05c6657d7b923fcf5ac563ee37ec79"
-
-[[projects]]
-  branch = "master"
-  digest = "1:f9c2eb150003d00b80208b496ff6c02e9eae846162612695431bd33f1c6e6d02"
-  name = "github.com/frozenpine/ngerest"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "8ad8d88079937b8362dd229353366d96f07b7ea9"
-
-[[projects]]
-  branch = "master"
   digest = "1:19bd76e36468405846b7c20ed6c877f0282ac26743297b75598c85ebfe32dbd2"
   name = "github.com/frozenpine/pkcs8"
   packages = ["."]
@@ -40,49 +24,6 @@
   pruneopts = "UT"
   revision = "b5d812f8a3706043e23a9cd5babf2e5423744d30"
   version = "v1.3.1"
-
-[[projects]]
-  digest = "1:582b704bebaa06b48c29b0cec224a6058a09c86883aaddabde889cd1a5f73e1b"
-  name = "github.com/google/uuid"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "0cd6bf5da1e1c83f8b45653022c74f71af0538a4"
-  version = "v1.1.1"
-
-[[projects]]
-  branch = "master"
-  digest = "1:d30c12ed34c1e5127d637bb833c2936b230db188d377e43bf1cf5ac0f995fc9e"
-  name = "github.com/myzhan/boomer"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "014faeaa39cb3295308bbf0071e18ae503d41c4d"
-
-[[projects]]
-  digest = "1:4887e9e89c80299aa520d718239809fdd2a47a9aa394909b169959bfbc424ddf"
-  name = "github.com/ugorji/go"
-  packages = ["codec"]
-  pruneopts = "UT"
-  revision = "8fd0f8d918c8f0b52d0af210a812ba882cc31a1e"
-  version = "v1.1.2"
-
-[[projects]]
-  digest = "1:2684f31e46097676f85dadf62e4c725a79c3e23de3fa5208c720c1fbce26f884"
-  name = "github.com/zeromq/goczmq"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "98ab09146269d98bc3e427046f5fc222c4134e0b"
-  version = "v4.1.0"
-
-[[projects]]
-  branch = "master"
-  digest = "1:61a9c5ac789999738a37a5ba11f6424487e078483ccc4a4610081b9b5c2ac372"
-  name = "github.com/zeromq/gomq"
-  packages = [
-    ".",
-    "zmtp",
-  ]
-  pruneopts = "UT"
-  revision = "95dc37dee5c422f88f42cb88af6495ac543023f4"
 
 [[projects]]
   branch = "master"
@@ -126,8 +67,9 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/frozenpine/ngerest",
-    "github.com/myzhan/boomer",
+    "github.com/antihax/optional",
+    "github.com/frozenpine/pkcs8",
+    "golang.org/x/oauth2",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
