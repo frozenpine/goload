@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"errors"
 	"regexp"
 )
 
@@ -22,7 +21,7 @@ func (idMap *IdentityMap) CheckIdentity(id string, login map[string]string) erro
 		return nil
 	}
 
-	return errors.New("invalid login identiy")
+	return ErrIdentity
 }
 
 // NewIdentityMap generate identity pattern map

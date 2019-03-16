@@ -15,4 +15,6 @@ var (
 	ErrMissMatchQtySide = errors.New("order quantity miss-match with side")
 	// ErrSide invalid side
 	ErrSide = errors.New("side is either Buy or Sell")
+	// ErrIdentity invalid login identity
+	ErrIdentity = errors.New("identity should either be email or mobile")
 )

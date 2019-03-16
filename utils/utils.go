@@ -17,13 +17,13 @@ const (
 )
 
 // String order side string
-func (s OrderSide) String() string {
-	return string(s)
+func (s *OrderSide) String() string {
+	return string(*s)
 }
 
 // Value order side value
-func (s OrderSide) Value() int64 {
-	switch s {
+func (s *OrderSide) Value() int64 {
+	switch *s {
 	case Buy:
 		return 1
 	case Sell:
