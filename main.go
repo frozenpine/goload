@@ -45,7 +45,8 @@ var (
 	basePrice     float64
 	maxQuantity   = int64(100)
 
-	apiKey, apiSecret string
+	apiKey, apiSecret  string
+	identity, password string
 
 	randPrice, randQuantity, randSide, bothSide bool
 
@@ -75,6 +76,8 @@ func initArgs() {
 
 	flag.StringVar(&apiKey, "key", "", "API-Key for order.")
 	flag.StringVar(&apiSecret, "secret", "", "API-Secret for order.")
+	flag.StringVar(&identity, "identity", defaultIdentity, "Identity for login.")
+	flag.StringVar(&password, "pass", defaultPassword, "Password for login.")
 
 	flag.BoolVar(&randPrice, "rand-price", false, "Generate random price[BASE_PRICE.00, BASE_PRICE.99].")
 	flag.BoolVar(&randQuantity, "rand-quant", false, "Generate random quantity[1, MAX_QUANTITY].")
@@ -141,21 +144,36 @@ func makeOrder(auth context.Context, ordSym string, ordPrice float64, ordVol int
 }
 
 func worker() {
-	defer func() {
-		recover()
-	}()
+	var auth context.Context
 
 	if apiKey == "" || apiSecret == "" {
-		apiKey = "j84Hf3MbCDmdyB2vG6Q1"
-		apiSecret = "2U616PXJkGsDhgOoKPkxCgipv7UYUPm4h6hz678786RzU2Pn7mA42vij87NWd0z4T79lK97SGxvWJGKt649Ka5fh0k4Y2WfzNF8"
-		// todo: login with defaultIdentity & retrive api-key.
-		// if user not exist, register & retrive.
+		idMap := utils.NewIdentityMap()
+
+		login := make(map[string]string)
+
+		if err := idMap.CheckIdentity(identity, login); err != nil {
+			log.Fatalln(err)
+		}
+
+		pubKey, _, err := client.UserApi.GetPublicKey(rootCtx)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		login["password"] = pubKey.Encrypt(password)
+
+		auth, _, err = client.UserApi.UserLogin(rootCtx, login)
+
+		if err != nil {
+			log.Fatalln(err)
+		}
+	} else {
+		auth = context.WithValue(
+			rootCtx, ngerest.ContextAPIKey, ngerest.APIKey{
+				Key:    apiKey,
+				Secret: apiSecret,
+			})
 	}
-	auth := context.WithValue(
-		rootCtx, ngerest.ContextAPIKey, ngerest.APIKey{
-			Key:    apiKey,
-			Secret: apiSecret,
-		})
 
 	if bothSide {
 		sides = []int64{1, -1}
