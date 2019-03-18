@@ -96,7 +96,7 @@ func RandomSide() OrderSide {
 	return Sell
 }
 
-// RandomPrice generate random price
+// RandomPrice generate random price on basePrice
 func RandomPrice(price *float64, prec int, basePrice float64) error {
 	if prec <= 0 {
 		prec = 2
