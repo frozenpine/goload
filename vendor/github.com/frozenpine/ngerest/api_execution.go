@@ -1,7 +1,7 @@
 /*
  * BitMEX API
  *
- * ## REST API for the BitMEX Trading Platform  [View Changelog](/app/apiChangelog)    #### Getting Started  Base URI: [https://www.bitmex.com/api/v1](/api/v1)  ##### Fetching Data  All REST endpoints are documented below. You can try out any query right from this interface.  Most table queries accept `count`, `start`, and `reverse` params. Set `reverse=true` to get rows newest-first.  Additional documentation regarding filters, timestamps, and authentication is available in [the main API documentation](/app/restAPI).  *All* table data is available via the [Websocket](/app/wsAPI). We highly recommend using the socket if you want to have the quickest possible data without being subject to ratelimits.  ##### Return Types  By default, all data is returned as JSON. Send `?_format=csv` to get CSV data or `?_format=xml` to get XML data.  ##### Trade Data Queries  *This is only a small subset of what is available, to get you started.*  Fill in the parameters and click the `Try it out!` button to try any of these queries.  * [Pricing Data](#!/Quote/Quote_get)  * [Trade Data](#!/Trade/Trade_get)  * [OrderBook Data](#!/OrderBook/OrderBook_getL2)  * [Settlement Data](#!/Settlement/Settlement_get)  * [Exchange Statistics](#!/Stats/Stats_history)  Every function of the BitMEX.com platform is exposed here and documented. Many more functions are available.  ##### Swagger Specification  [⇩ Download Swagger JSON](swagger.json)    ## All API Endpoints  Click to expand a section. 
+ * ## REST API for the BitMEX Trading Platform  [View Changelog](/app/apiChangelog)    #### Getting Started  Base URI: [https://www.bitmex.com/api/v1](/api/v1)  ##### Fetching Data  All REST endpoints are documented below. You can try out any query right from this interface.  Most table queries accept `count`, `start`, and `reverse` params. Set `reverse=true` to get rows newest-first.  Additional documentation regarding filters, timestamps, and authentication is available in [the main API documentation](/app/restAPI).  *All* table data is available via the [Websocket](/app/wsAPI). We highly recommend using the socket if you want to have the quickest possible data without being subject to ratelimits.  ##### Return Types  By default, all data is returned as JSON. Send `?_format=csv` to get CSV data or `?_format=xml` to get XML data.  ##### Trade Data Queries  *This is only a small subset of what is available, to get you started.*  Fill in the parameters and click the `Try it out!` button to try any of these queries.  * [Pricing Data](#!/Quote/Quote_get)  * [Trade Data](#!/Trade/Trade_get)  * [OrderBook Data](#!/OrderBook/OrderBook_getL2)  * [Settlement Data](#!/Settlement/Settlement_get)  * [Exchange Statistics](#!/Stats/Stats_history)  Every function of the BitMEX.com platform is exposed here and documented. Many more functions are available.  ##### Swagger Specification  [⇩ Download Swagger JSON](swagger.json)    ## All API Endpoints  Click to expand a section.
  *
  * API version: 1.2.0
  * Contact: support@bitmex.com
@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
 	"github.com/antihax/optional"
 )
 
@@ -24,42 +25,28 @@ var (
 	_ context.Context
 )
 
-type ExecutionApiService service
+// ExecutionAPIService raw execution api service
+type ExecutionAPIService service
 
-/* 
-ExecutionApiService Get all raw executions for your account.
-This returns all raw transactions, which includes order opening and cancelation, and order status changes. It can be quite noisy. More focused information is available at &#x60;/execution/tradeHistory&#x60;.  You may also use the &#x60;filter&#x60; param to target your query. Specify an array as a filter value, such as &#x60;{\&quot;execType\&quot;: [\&quot;Settlement\&quot;, \&quot;Trade\&quot;]}&#x60; to filter on multiple values.  See [the FIX Spec](http://www.onixs.biz/fix-dictionary/5.0.SP2/msgType_8_8.html) for explanations of these fields. 
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param optional nil or *ExecutionGetOpts - Optional Parameters:
-     * @param "Symbol" (optional.String) -  Instrument symbol. Send a bare series (e.g. XBU) to get data for the nearest expiring contract in that series.  You can also send a timeframe, e.g. &#x60;XBU:monthly&#x60;. Timeframes are &#x60;daily&#x60;, &#x60;weekly&#x60;, &#x60;monthly&#x60;, &#x60;quarterly&#x60;, and &#x60;biquarterly&#x60;.
-     * @param "Filter" (optional.String) -  Generic table filter. Send JSON key/value pairs, such as &#x60;{\&quot;key\&quot;: \&quot;value\&quot;}&#x60;. You can key on individual fields, and do more advanced querying on timestamps. See the [Timestamp Docs](https://www.bitmex.com/app/restAPI#Timestamp-Filters) for more details.
-     * @param "Columns" (optional.String) -  Array of column names to fetch. If omitted, will return all columns.  Note that this method will always return item keys, even when not specified, so you may receive more columns that you expect.
-     * @param "Count" (optional.Float32) -  Number of results to fetch.
-     * @param "Start" (optional.Float32) -  Starting point for results.
-     * @param "Reverse" (optional.Bool) -  If true, will sort results newest first.
-     * @param "StartTime" (optional.Time) -  Starting date filter for results.
-     * @param "EndTime" (optional.Time) -  Ending date filter for results.
-
-@return []Execution
-*/
-
-type ExecutionGetOpts struct { 
-	Symbol optional.String
-	Filter optional.String
-	Columns optional.String
-	Count optional.Float32
-	Start optional.Float32
-	Reverse optional.Bool
+// ExecutionGetOpts optinal args for getting raw executions
+type ExecutionGetOpts struct {
+	Symbol    optional.String
+	Filter    optional.String
+	Columns   optional.String
+	Count     optional.Float32
+	Start     optional.Float32
+	Reverse   optional.Bool
 	StartTime optional.Time
-	EndTime optional.Time
+	EndTime   optional.Time
 }
 
-func (a *ExecutionApiService) ExecutionGet(ctx context.Context, localVarOptionals *ExecutionGetOpts) ([]Execution, *http.Response, error) {
+// ExecutionGet get all raw executions for your account.
+func (a *ExecutionAPIService) ExecutionGet(ctx context.Context, localVarOptionals *ExecutionGetOpts) ([]Execution, *http.Response, error) {
 	var (
-		localVarHttpMethod = strings.ToUpper("Get")
-		localVarPostBody   interface{}
-		localVarFileName   string
-		localVarFileBytes  []byte
+		localVarHTTPMethod  = strings.ToUpper("Get")
+		localVarPostBody    interface{}
+		localVarFileName    string
+		localVarFileBytes   []byte
 		localVarReturnValue []Execution
 	)
 
@@ -95,21 +82,21 @@ func (a *ExecutionApiService) ExecutionGet(ctx context.Context, localVarOptional
 		localVarQueryParams.Add("endTime", parameterToString(localVarOptionals.EndTime.Value(), ""))
 	}
 	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{"application/json", "application/x-www-form-urlencoded"}
+	localVarHTTPContentTypes := []string{"application/json", "application/x-www-form-urlencoded"}
 
 	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
 	}
 
 	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"application/json", "application/xml", "text/xml", "application/javascript", "text/javascript"}
+	localVarHTTPHeaderAccepts := []string{"application/json", "application/xml", "text/xml", "application/javascript", "text/javascript"}
 
 	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	if ctx != nil {
 		// API Key Authentication
@@ -121,7 +108,7 @@ func (a *ExecutionApiService) ExecutionGet(ctx context.Context, localVarOptional
 				key = auth.Key
 			}
 			localVarHeaderParams["api-key"] = key
-			
+
 		}
 	}
 	if ctx != nil {
@@ -134,7 +121,7 @@ func (a *ExecutionApiService) ExecutionGet(ctx context.Context, localVarOptional
 				key = auth.Key
 			}
 			localVarHeaderParams["api-nonce"] = key
-			
+
 		}
 	}
 	if ctx != nil {
@@ -147,122 +134,108 @@ func (a *ExecutionApiService) ExecutionGet(ctx context.Context, localVarOptional
 				key = auth.Key
 			}
 			localVarHeaderParams["api-signature"] = key
-			
+
 		}
 	}
-	r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.client.prepareRequest(ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
 
-	localVarHttpResponse, err := a.client.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
+	localVarHTTPResponse, err := a.client.callAPI(r)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := ioutil.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
 	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
+		return localVarReturnValue, localVarHTTPResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode < 300 {
+	if localVarHTTPResponse.StatusCode < 300 {
 		// If we succeed, return the data, otherwise pass on to decode error.
-		err = a.client.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-		if err == nil { 
-			return localVarReturnValue, localVarHttpResponse, err
+		err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+		if err == nil {
+			return localVarReturnValue, localVarHTTPResponse, err
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHTTPResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
-			body: localVarBody,
-			error: localVarHttpResponse.Status,
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
 		}
-		
-		if localVarHttpResponse.StatusCode == 200 {
+
+		if localVarHTTPResponse.StatusCode == 200 {
 			var v []Execution
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
-		
-		if localVarHttpResponse.StatusCode == 400 {
+
+		if localVarHTTPResponse.StatusCode == 400 {
 			var v ModelError
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
-		
-		if localVarHttpResponse.StatusCode == 401 {
+
+		if localVarHTTPResponse.StatusCode == 401 {
 			var v ModelError
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
-		
-		if localVarHttpResponse.StatusCode == 404 {
+
+		if localVarHTTPResponse.StatusCode == 404 {
 			var v ModelError
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
-		
-		return localVarReturnValue, localVarHttpResponse, newErr
+
+		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 
-	return localVarReturnValue, localVarHttpResponse, nil
+	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-/* 
-ExecutionApiService Get all balance-affecting executions. This includes each trade, insurance charge, and settlement.
- * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param optional nil or *ExecutionGetTradeHistoryOpts - Optional Parameters:
-     * @param "Symbol" (optional.String) -  Instrument symbol. Send a bare series (e.g. XBU) to get data for the nearest expiring contract in that series.  You can also send a timeframe, e.g. &#x60;XBU:monthly&#x60;. Timeframes are &#x60;daily&#x60;, &#x60;weekly&#x60;, &#x60;monthly&#x60;, &#x60;quarterly&#x60;, and &#x60;biquarterly&#x60;.
-     * @param "Filter" (optional.String) -  Generic table filter. Send JSON key/value pairs, such as &#x60;{\&quot;key\&quot;: \&quot;value\&quot;}&#x60;. You can key on individual fields, and do more advanced querying on timestamps. See the [Timestamp Docs](https://www.bitmex.com/app/restAPI#Timestamp-Filters) for more details.
-     * @param "Columns" (optional.String) -  Array of column names to fetch. If omitted, will return all columns.  Note that this method will always return item keys, even when not specified, so you may receive more columns that you expect.
-     * @param "Count" (optional.Float32) -  Number of results to fetch.
-     * @param "Start" (optional.Float32) -  Starting point for results.
-     * @param "Reverse" (optional.Bool) -  If true, will sort results newest first.
-     * @param "StartTime" (optional.Time) -  Starting date filter for results.
-     * @param "EndTime" (optional.Time) -  Ending date filter for results.
-
-@return []Execution
-*/
-
-type ExecutionGetTradeHistoryOpts struct { 
-	Symbol optional.String
-	Filter optional.String
-	Columns optional.String
-	Count optional.Float32
-	Start optional.Float32
-	Reverse optional.Bool
+// ExecutionGetTradeHistoryOpts optinal args for getting trade history
+type ExecutionGetTradeHistoryOpts struct {
+	Symbol    optional.String
+	Filter    optional.String
+	Columns   optional.String
+	Count     optional.Float32
+	Start     optional.Float32
+	Reverse   optional.Bool
 	StartTime optional.Time
-	EndTime optional.Time
+	EndTime   optional.Time
 }
 
-func (a *ExecutionApiService) ExecutionGetTradeHistory(ctx context.Context, localVarOptionals *ExecutionGetTradeHistoryOpts) ([]Execution, *http.Response, error) {
+// ExecutionGetTradeHistory get all balance-affecting executions. This includes each trade, insurance charge, and settlement.
+func (a *ExecutionAPIService) ExecutionGetTradeHistory(ctx context.Context, localVarOptionals *ExecutionGetTradeHistoryOpts) ([]Execution, *http.Response, error) {
 	var (
-		localVarHttpMethod = strings.ToUpper("Get")
-		localVarPostBody   interface{}
-		localVarFileName   string
-		localVarFileBytes  []byte
+		localVarHTTPMethod  = strings.ToUpper("Get")
+		localVarPostBody    interface{}
+		localVarFileName    string
+		localVarFileBytes   []byte
 		localVarReturnValue []Execution
 	)
 
@@ -298,21 +271,21 @@ func (a *ExecutionApiService) ExecutionGetTradeHistory(ctx context.Context, loca
 		localVarQueryParams.Add("endTime", parameterToString(localVarOptionals.EndTime.Value(), ""))
 	}
 	// to determine the Content-Type header
-	localVarHttpContentTypes := []string{"application/json", "application/x-www-form-urlencoded"}
+	localVarHTTPContentTypes := []string{"application/json", "application/x-www-form-urlencoded"}
 
 	// set Content-Type header
-	localVarHttpContentType := selectHeaderContentType(localVarHttpContentTypes)
-	if localVarHttpContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHttpContentType
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
 	}
 
 	// to determine the Accept header
-	localVarHttpHeaderAccepts := []string{"application/json", "application/xml", "text/xml", "application/javascript", "text/javascript"}
+	localVarHTTPHeaderAccepts := []string{"application/json", "application/xml", "text/xml", "application/javascript", "text/javascript"}
 
 	// set Accept header
-	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
-	if localVarHttpHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	if ctx != nil {
 		// API Key Authentication
@@ -324,7 +297,7 @@ func (a *ExecutionApiService) ExecutionGetTradeHistory(ctx context.Context, loca
 				key = auth.Key
 			}
 			localVarHeaderParams["api-key"] = key
-			
+
 		}
 	}
 	if ctx != nil {
@@ -337,7 +310,7 @@ func (a *ExecutionApiService) ExecutionGetTradeHistory(ctx context.Context, loca
 				key = auth.Key
 			}
 			localVarHeaderParams["api-nonce"] = key
-			
+
 		}
 	}
 	if ctx != nil {
@@ -350,85 +323,85 @@ func (a *ExecutionApiService) ExecutionGetTradeHistory(ctx context.Context, loca
 				key = auth.Key
 			}
 			localVarHeaderParams["api-signature"] = key
-			
+
 		}
 	}
-	r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
+	r, err := a.client.prepareRequest(ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFileName, localVarFileBytes)
 	if err != nil {
 		return localVarReturnValue, nil, err
 	}
 
-	localVarHttpResponse, err := a.client.callAPI(r)
-	if err != nil || localVarHttpResponse == nil {
-		return localVarReturnValue, localVarHttpResponse, err
+	localVarHTTPResponse, err := a.client.callAPI(r)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
 	}
 
-	localVarBody, err := ioutil.ReadAll(localVarHttpResponse.Body)
-	localVarHttpResponse.Body.Close()
+	localVarBody, err := ioutil.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
 	if err != nil {
-		return localVarReturnValue, localVarHttpResponse, err
+		return localVarReturnValue, localVarHTTPResponse, err
 	}
 
-	if localVarHttpResponse.StatusCode < 300 {
+	if localVarHTTPResponse.StatusCode < 300 {
 		// If we succeed, return the data, otherwise pass on to decode error.
-		err = a.client.decode(&localVarReturnValue, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-		if err == nil { 
-			return localVarReturnValue, localVarHttpResponse, err
+		err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+		if err == nil {
+			return localVarReturnValue, localVarHTTPResponse, err
 		}
 	}
 
-	if localVarHttpResponse.StatusCode >= 300 {
+	if localVarHTTPResponse.StatusCode >= 300 {
 		newErr := GenericSwaggerError{
-			body: localVarBody,
-			error: localVarHttpResponse.Status,
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
 		}
-		
-		if localVarHttpResponse.StatusCode == 200 {
+
+		if localVarHTTPResponse.StatusCode == 200 {
 			var v []Execution
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
-		
-		if localVarHttpResponse.StatusCode == 400 {
+
+		if localVarHTTPResponse.StatusCode == 400 {
 			var v ModelError
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
-		
-		if localVarHttpResponse.StatusCode == 401 {
+
+		if localVarHTTPResponse.StatusCode == 401 {
 			var v ModelError
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
-		
-		if localVarHttpResponse.StatusCode == 404 {
+
+		if localVarHTTPResponse.StatusCode == 404 {
 			var v ModelError
-			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"));
-				if err != nil {
-					newErr.error = err.Error()
-					return localVarReturnValue, localVarHttpResponse, newErr
-				}
-				newErr.model = v
-				return localVarReturnValue, localVarHttpResponse, newErr
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
-		
-		return localVarReturnValue, localVarHttpResponse, newErr
+
+		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 
-	return localVarReturnValue, localVarHttpResponse, nil
+	return localVarReturnValue, localVarHTTPResponse, nil
 }

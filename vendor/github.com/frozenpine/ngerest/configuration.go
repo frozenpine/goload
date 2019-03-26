@@ -54,11 +54,13 @@ type APIKey struct {
 	Secret string
 }
 
+// QuantToken quantdo token authentication
 type QuantToken struct {
-	Token string
+	Token   string
 	Cookies []*http.Cookie
 }
 
+// Configuration api client configurations
 type Configuration struct {
 	BasePath      string            `json:"basePath,omitempty"`
 	Host          string            `json:"host,omitempty"`
@@ -68,6 +70,7 @@ type Configuration struct {
 	HTTPClient    *http.Client
 }
 
+// NewConfiguration create new configuration
 func NewConfiguration() *Configuration {
 	cfg := &Configuration{
 		BasePath:      "https://localhost/api/v1",
@@ -77,6 +80,7 @@ func NewConfiguration() *Configuration {
 	return cfg
 }
 
+// AddDefaultHeader add default header to configuration
 func (c *Configuration) AddDefaultHeader(key string, value string) {
 	c.DefaultHeader[key] = value
 }

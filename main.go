@@ -126,7 +126,7 @@ func makeOrder(auth context.Context, ordSym string, ordPrice float64, ordVol int
 		Price:    optional.NewFloat64(ordPrice)}
 
 	start := boomer.Now()
-	ord, rsp, err := client.OrderApi.OrderNew(auth, ordSym, &ordOpts)
+	ord, rsp, err := client.Order.OrderNew(auth, ordSym, &ordOpts)
 	elapsed := boomer.Now() - start
 
 	if err != nil {
@@ -155,14 +155,15 @@ func worker() {
 			log.Fatalln(err)
 		}
 
-		pubKey, _, err := client.UserApi.GetPublicKey(rootCtx)
+		// pubKey, _, err := client.UserApi.GetPublicKey(rootCtx)
+		pubKey, _, err := client.KeyExchange.GetPublicKey(rootCtx)
 		if err != nil {
 			log.Fatalln(err)
 		}
 
 		login["password"] = pubKey.Encrypt(password)
 
-		auth, _, err = client.UserApi.UserLogin(rootCtx, login)
+		auth, _, err = client.User.UserLogin(rootCtx, login)
 
 		if err != nil {
 			log.Fatalln(err)

@@ -19,11 +19,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f9c2eb150003d00b80208b496ff6c02e9eae846162612695431bd33f1c6e6d02"
+  digest = "1:607656c56c7d5abac5aafd354d452f04989b91c3c47eef9d665095c83c067336"
   name = "github.com/frozenpine/ngerest"
   packages = ["."]
   pruneopts = "UT"
-  revision = "8ad8d88079937b8362dd229353366d96f07b7ea9"
+  revision = "1f5e6989e812e09a723389a6db64ef49b146fc49"
 
 [[projects]]
   branch = "master"
@@ -126,6 +126,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/antihax/optional",
     "github.com/frozenpine/ngerest",
     "github.com/myzhan/boomer",
   ]
