@@ -11,33 +11,35 @@ import (
 func worker() {
 	var auth context.Context
 
-	if apiKey == "" || apiSecret == "" {
-		idMap := utils.NewIdentityMap()
+	if !dryRun {
+		if apiKey == "" || apiSecret == "" {
+			idMap := utils.NewIdentityMap()
 
-		login := make(map[string]string)
+			login := make(map[string]string)
 
-		if err := idMap.CheckIdentity(identity, login); err != nil {
-			log.Fatalln(err)
+			if err := idMap.CheckIdentity(identity, login); err != nil {
+				log.Fatalln(err)
+			}
+
+			pubKey, _, err := client.KeyExchange.GetPublicKey(rootCtx)
+			if err != nil {
+				log.Fatalln(err)
+			}
+
+			login["password"] = pubKey.Encrypt(password)
+
+			auth, _, err = client.User.UserLogin(rootCtx, login)
+
+			if err != nil {
+				log.Fatalln(err)
+			}
+		} else {
+			auth = context.WithValue(
+				rootCtx, ngerest.ContextAPIKey, ngerest.APIKey{
+					Key:    apiKey,
+					Secret: apiSecret,
+				})
 		}
-
-		pubKey, _, err := client.KeyExchange.GetPublicKey(rootCtx)
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		login["password"] = pubKey.Encrypt(password)
-
-		auth, _, err = client.User.UserLogin(rootCtx, login)
-
-		if err != nil {
-			log.Fatalln(err)
-		}
-	} else {
-		auth = context.WithValue(
-			rootCtx, ngerest.ContextAPIKey, ngerest.APIKey{
-				Key:    apiKey,
-				Secret: apiSecret,
-			})
 	}
 
 	for _, order := range orderList {

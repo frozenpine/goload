@@ -22,6 +22,9 @@ func initArgs() {
 	flag.Float64Var(&basePrice, "base-price", defaultPrice, "Base price for random price.")
 	flag.Int64Var(&maxQuantity, "max-quantity", defaultMaxQuantity, "Max quantity for random quantity.")
 
+	flag.StringVar(&csvFile, "csv", "", "Read order defines from CSV file.")
+	flag.StringVar(&resultFile, "result", "", "Record returned order to CSV file.")
+
 	flag.StringVar(&apiKey, "key", "", "API-Key for order.")
 	flag.StringVar(&apiSecret, "secret", "", "API-Secret for order.")
 	flag.StringVar(&identity, "identity", defaultIdentity, "Identity for login.")

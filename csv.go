@@ -7,7 +7,7 @@ import (
 )
 
 func loadFromCSV(path string) ([]*Order, error) {
-	orders := make([]*Order, count)
+	orders := make([]*Order, 0, count)
 
 	if csvFile, err := os.OpenFile(path, os.O_RDONLY, os.ModePerm); err != nil {
 		return nil, err

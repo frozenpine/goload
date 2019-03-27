@@ -41,7 +41,7 @@ func NewIdentityMap() IdentityMap {
 	mp := make(IdentityMap)
 
 	mp["email"] = regexp.MustCompile(`[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)*`)
-	mp["mobile"] = regexp.MustCompile(`(+?[0-9]{2,3})?[0-9-]{6,13}`)
+	mp["mobile"] = regexp.MustCompile(`(\+?[0-9]{2,3})?[0-9-]{6,13}`)
 
 	return mp
 }

@@ -21,16 +21,21 @@ var (
 	rootCtx, stopFunc = context.WithCancel(context.Background())
 
 	host, baseURI string
-	symbol        string
-	quantity      int64
-	price         float64
-	side          = defaultSide
-	sides         []utils.OrderSide
-	precision     int
-	basePrice     float64
-	maxQuantity   int64
-	orderList     []*Order
-	orderResults  []*ngerest.Order
+
+	symbol      string
+	quantity    int64
+	price       float64
+	side        = defaultSide
+	sides       []utils.OrderSide
+	precision   int
+	basePrice   float64
+	maxQuantity int64
+
+	csvFile    string
+	resultFile string
+
+	orderList    []*Order
+	orderResults []*ngerest.Order
 
 	apiKey, apiSecret  string
 	identity, password string
@@ -130,8 +135,17 @@ func main() {
 	}
 	validateArgs()
 
+	var err error
+
 	if noBoomer {
-		orderList, _ = randomOrders()
+		if csvFile != "" {
+			if orderList, err = loadFromCSV(csvFile); err != nil {
+				panic(err)
+			}
+		} else {
+			orderList, _ = randomOrders()
+		}
+
 		worker()
 	} else {
 		task := &boomer.Task{
