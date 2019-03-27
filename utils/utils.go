@@ -1,9 +1,11 @@
 package utils
 
 import (
+	"bytes"
 	"fmt"
 	"math/rand"
 	"strconv"
+	"strings"
 )
 
 // OrderSide order side
@@ -48,6 +50,24 @@ func (s OrderSide) Opposite() OrderSide {
 // UnmarshalCSV unmarshal csv column to OrderSide
 func (s *OrderSide) UnmarshalCSV(value string) error {
 	return s.Set(value)
+}
+
+// MarshalCSV marshal to csv column
+func (s *OrderSide) MarshalCSV() string {
+	return (*s).String()
+}
+
+// UnmarshalJSON unmarshal from json string
+func (s *OrderSide) UnmarshalJSON(data []byte) error {
+	return s.Set(strings.Trim(string(data), "\""))
+}
+
+// MarshalJSON marshal to json string
+func (s *OrderSide) MarshalJSON() ([]byte, error) {
+	var buff bytes.Buffer
+	buff.WriteString((*s).String())
+
+	return buff.Bytes(), nil
 }
 
 // Set set value for flag
