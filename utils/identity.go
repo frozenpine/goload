@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"regexp"
 )
 
@@ -24,12 +25,23 @@ func (idMap *IdentityMap) CheckIdentity(id string, login map[string]string) erro
 	return ErrIdentity
 }
 
+// AddPattern add new pattern to IdentityMap
+func (idMap *IdentityMap) AddPattern(name string, pattern *regexp.Regexp) error {
+	if _, exist := (*idMap)[name]; exist {
+		return fmt.Errorf("named[%s] pattern already exists", name)
+	}
+
+	(*idMap)[name] = pattern
+
+	return nil
+}
+
 // NewIdentityMap generate identity pattern map
 func NewIdentityMap() IdentityMap {
 	mp := make(IdentityMap)
 
 	mp["email"] = regexp.MustCompile(`[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)*`)
-	mp["mobile"] = regexp.MustCompile(`(+[0-9]{2,3})?[0-9-]{6,13}`)
+	mp["mobile"] = regexp.MustCompile(`(\+?[0-9]{2,3})?[0-9-]{6,13}`)
 
 	return mp
 }

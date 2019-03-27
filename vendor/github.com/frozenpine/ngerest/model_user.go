@@ -14,10 +14,10 @@ import (
 	"time"
 )
 
-// Account Operations
+// User Account Operations
 type User struct {
-	Id           float32          `json:"id,omitempty"`
-	OwnerId      float32          `json:"ownerId,omitempty"`
+	ID           float32          `json:"id,omitempty"`
+	OwnerID      float32          `json:"ownerId,omitempty"`
 	Firstname    string           `json:"firstname,omitempty"`
 	Lastname     string           `json:"lastname,omitempty"`
 	Username     string           `json:"username"`
@@ -35,6 +35,7 @@ type User struct {
 	Typ          string           `json:"typ,omitempty"`
 }
 
+// UserDefaultAPIKey user's default api key
 type UserDefaultAPIKey struct {
 	UserID    string `json:"userId"`
 	APIKey    string `json:"apiKey"`
