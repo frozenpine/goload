@@ -34,6 +34,14 @@
   revision = "de9534b11e471a99cef0c888362fdc6ddf3e1892"
 
 [[projects]]
+  branch = "master"
+  digest = "1:58c532bd62a095b7b8e80951f114b7770681b917dbe57574161c2d96eb51a99a"
+  name = "github.com/gocarina/gocsv"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c075544dca88eab28b482c6bcdb41725fd260916"
+
+[[projects]]
   digest = "1:318f1c959a8a740366fce4b1e1eb2fd914036b4af58fbd0a003349b305f118ad"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
@@ -128,6 +136,7 @@
   input-imports = [
     "github.com/antihax/optional",
     "github.com/frozenpine/ngerest",
+    "github.com/gocarina/gocsv",
     "github.com/myzhan/boomer",
   ]
   solver-name = "gps-cdcl"

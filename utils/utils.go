@@ -29,7 +29,38 @@ func (s OrderSide) Value() int64 {
 	case Sell:
 		return -1
 	default:
-		return 1
+		panic(ErrSide)
+	}
+}
+
+// Opposite get opposite order side
+func (s OrderSide) Opposite() OrderSide {
+	switch s {
+	case Buy:
+		return Sell
+	case Sell:
+		return Buy
+	default:
+		panic(ErrSide)
+	}
+}
+
+// UnmarshalCSV unmarshal csv column to OrderSide
+func (s *OrderSide) UnmarshalCSV(value string) error {
+	return s.Set(value)
+}
+
+// Set set value for flag
+func (s *OrderSide) Set(value string) error {
+	switch value {
+	case "Buy", "buy":
+		*s = Buy
+		return nil
+	case "Sell", "sell":
+		*s = Sell
+		return nil
+	default:
+		return ErrSide
 	}
 }
 
@@ -61,23 +92,23 @@ func CheckQuantity(qty int64) error {
 }
 
 // MatchSide match side with quantity
-func MatchSide(side *string, qty int64) error {
+func MatchSide(side *OrderSide, qty int64) error {
 	switch *side {
 	case "Buy", "buy":
 		if qty < 0 {
 			return ErrMissMatchQtySide
 		}
-		*side = Buy.String()
+		*side = Buy
 	case "Sell", "sell":
 		if qty > 0 {
 			return ErrMissMatchQtySide
 		}
-		*side = Sell.String()
+		*side = Sell
 	case "":
 		if qty > 0 {
-			*side = Buy.String()
+			*side = Buy
 		} else {
-			*side = Sell.String()
+			*side = Sell
 		}
 	default:
 		return ErrSide

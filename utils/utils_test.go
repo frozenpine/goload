@@ -5,13 +5,13 @@ import (
 )
 
 func TestMatchSide(t *testing.T) {
-	side := ""
+	var side OrderSide
 
 	if err := MatchSide(&side, 1); err != nil {
 		t.Fatal(err)
 	}
 
-	if side != Buy.String() {
+	if side != Buy {
 		t.Fatal("Side by qty failed.")
 	}
 
