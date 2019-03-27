@@ -23,7 +23,7 @@ func (ord *Order) GetQuantity() int64 {
 }
 
 func (ord *Order) String() string {
-	result, _ := json.Marshal(ord)
+	result, _ := json.Marshal(*ord)
 
 	return string(result)
 }

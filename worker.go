@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 
 	"github.com/frozenpine/ngerest"
@@ -21,7 +20,6 @@ func worker() {
 			log.Fatalln(err)
 		}
 
-		// pubKey, _, err := client.UserApi.GetPublicKey(rootCtx)
 		pubKey, _, err := client.KeyExchange.GetPublicKey(rootCtx)
 		if err != nil {
 			log.Fatalln(err)
@@ -42,39 +40,13 @@ func worker() {
 			})
 	}
 
-	if bothSide {
-		sides = []utils.OrderSide{utils.Buy, utils.Sell}
-	} else {
-		if randSide {
-			sides = []utils.OrderSide{utils.RandomSide()}
+	for _, order := range orderList {
+		if dryRun {
+			log.Println("[DRY-RUN]", (*order).String())
 		} else {
-			sides = []utils.OrderSide{utils.OrderSide(side)}
-		}
-	}
+			result := makeOrder(auth, order.Symbol, order.Price, order.GetQuantity())
 
-	for count > 0 {
-		for idx, sideValue := range sides {
-			if !(bothSide && idx > 0) {
-				if randPrice {
-					utils.RandomPrice(&price, precision, basePrice)
-				}
-
-				if randQuantity {
-					utils.RandomQuantity(&quantity, maxQuantity)
-				}
-			}
-
-			ord := makeOrder(auth, symbol, price, quantity*sideValue.Value())
-
-			if noBoomer {
-				if ord != nil {
-					result, _ := json.Marshal(ord)
-					log.Println(string(result))
-				} else {
-					log.Println("making order failed.")
-				}
-				count--
-			}
+			orderResults = append(orderResults, result)
 		}
 	}
 }

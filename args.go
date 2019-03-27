@@ -33,6 +33,8 @@ func initArgs() {
 	flag.BoolVar(&bothSide, "both-side", false, "Generate order in both side.")
 
 	flag.IntVar(&count, "count", 1, "Order count per worker.")
+
+	flag.BoolVar(&dryRun, "dry-run", false, "Dry-run under test.")
 }
 
 func validateArgs() {

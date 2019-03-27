@@ -30,11 +30,13 @@ var (
 	basePrice     float64
 	maxQuantity   int64
 	orderList     []*Order
+	orderResults  []*ngerest.Order
 
 	apiKey, apiSecret  string
 	identity, password string
 
 	randPrice, randQuantity, randSide, bothSide bool
+	dryRun                                      bool
 
 	count int
 
@@ -42,9 +44,49 @@ var (
 	name   = "Order"
 )
 
-// func randomOrders() ([]*Order, error) {
+func randomOrders() ([]*Order, error) {
+	orders := make([]*Order, 0, count)
 
-// }
+	if bothSide {
+		sides = []utils.OrderSide{utils.Buy, utils.Sell}
+	} else {
+		if randSide {
+			sides = []utils.OrderSide{utils.RandomSide()}
+		} else {
+			sides = []utils.OrderSide{utils.OrderSide(side)}
+		}
+	}
+
+OUT:
+	for count > 0 {
+		for idx, sideValue := range sides {
+			if !bothSide || idx == 0 {
+				if randPrice {
+					utils.RandomPrice(&price, precision, basePrice)
+				}
+
+				if randQuantity {
+					utils.RandomQuantity(&quantity, maxQuantity)
+				}
+			}
+
+			orders = append(orders, &Order{
+				Symbol:   symbol,
+				Price:    price,
+				Quantity: quantity,
+				Side:     sideValue,
+			})
+
+			count--
+
+			if count <= 0 {
+				break OUT
+			}
+		}
+	}
+
+	return orders, nil
+}
 
 func makeOrder(auth context.Context, ordSym string, ordPrice float64, ordVol int64) *ngerest.Order {
 	var side string
@@ -89,6 +131,7 @@ func main() {
 	validateArgs()
 
 	if noBoomer {
+		orderList, _ = randomOrders()
 		worker()
 	} else {
 		task := &boomer.Task{
